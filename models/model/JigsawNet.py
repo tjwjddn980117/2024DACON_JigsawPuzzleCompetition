@@ -45,3 +45,6 @@ class JIGSAW_NET(nn.Module):
 
         conv4 = self.conv4(conv3)
         residual4 = self.pool(conv4)
+
+        conv5 = self.conv5(conv4)
+        residual5 = self.pool(conv5)
