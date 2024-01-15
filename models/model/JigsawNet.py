@@ -19,18 +19,12 @@ class JIGSAW_NET(nn.Module):
 
         # Contraction path
         self.conv1 = ConvBlock(in_channels, 16, 'he_normal')
-        self.pool1 = nn.MaxPool2d(2)
-        
         self.conv2 = ConvBlock(16, 32, 'he_normal')
-        self.pool2 = nn.MaxPool2d(2)
-
         self.conv3 = ConvBlock(32, 64, 'he_normal')
-        self.pool3 = nn.MaxPool2d(2)
-
         self.conv4 = ConvBlock(64, 128, 'he_normal')
-        self.pool4 = nn.MaxPool2d(2)
-
         self.conv5 = ConvBlock(128, 256, 'he_normal')
+
+        self.pool = nn.MaxPool2d(2)
 
         # Expansion path
         self.convUp1 = DeconvBlock(256, 128, 'he_normal')
@@ -40,4 +34,8 @@ class JIGSAW_NET(nn.Module):
 
 
     def forward(self, x):
-        x = x(self.conv1)
+        conv1 = self.conv1(x)
+        residual1 = self.pool(conv1)
+
+        conv2 = self.conv2(conv1)
+        residual2 = self.pool(conv2)
