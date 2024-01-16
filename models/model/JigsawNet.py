@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from blocks.blocks import ConvBlock, DeconvBlock
@@ -55,9 +54,9 @@ class JIGSAW_NET(nn.Module):
 
         lastPool = self.pool(convUp4)
         # [B, 4, 4, 16]
-        final_conv = self.final_conv(lastPool)
-        out = nn.BatchNorm2d(final_conv)
-        out = out.view(-1, 16, 16)
+        out = self.final_conv(lastPool)
+        out = nn.BatchNorm2d(16)(out)
+        out = out.view(out.size(0), out.size(1), -1)
         out = F.softmax(out, dim=1)
 
         return out
