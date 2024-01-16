@@ -31,7 +31,8 @@ class ConvBlock(nn.Module):
         return x
 
 class DeconvBlock(nn.Module):
-    '''
+    def __init__(self, in_channels, out_channels, init='he_normal'):
+        '''
         This is the basic Convolution block. We had batchnorm.
 
         Arguments:
@@ -46,7 +47,6 @@ class DeconvBlock(nn.Module):
         Outputs:
             x (nparray): [batch_size, channel, 2*H, 2*W].
     '''
-    def __init__(self, in_channels, out_channels, init='he_normal'):
         super(DeconvBlock, self).__init__()
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
         self.conv = nn.Conv2d(in_channels, out_channels, 3, padding=1)
