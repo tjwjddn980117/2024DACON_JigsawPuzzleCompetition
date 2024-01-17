@@ -34,7 +34,7 @@ transform = transforms.Compose([
 ])
 
 # Initialize dataset
-dataset = ImageDataset(img_dir=DATA_PATH+'\\train', transform=transform)
+DATASET = ImageDataset(img_dir=DATA_PATH+'\\train', transform=transform)
 
 # Initialize data loader
-data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+DATA_LOADER = DataLoader(DATASET, batch_size=32, shuffle=True)
