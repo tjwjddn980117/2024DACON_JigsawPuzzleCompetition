@@ -7,8 +7,8 @@ from conf import *
 
 def aug_img_save(train_df, show_num, save_aug=False):
 
-    if not os.path.exists(save_augment_path):
-        os.makedirs(save_augment_path)
+    if not os.path.exists(SAVE_AGUMENT_PATH):
+        os.makedirs(SAVE_AGUMENT_PATH)
 
     # 증강된 이미지 데이터 프레임 생성
     dict_augment = {'ID':[],
@@ -31,7 +31,7 @@ def aug_img_save(train_df, show_num, save_aug=False):
 
         # train 이미지 불러오기
         train_path = sample_df['img_path'].split('/')[-1]
-        train_img = Image.open(data_path+'/train/'+train_path)
+        train_img = Image.open(DATA_PATH+'/train/'+train_path)
 
         width, height = train_img.size
         cell_width = width // 4
@@ -87,7 +87,7 @@ def aug_img_save(train_df, show_num, save_aug=False):
             pass
         else:
             augment_name = f'AUGMENT{count:05}.jpg'
-            augment_path = save_augment_path + '/' + augment_name
+            augment_path = SAVE_AGUMENT_PATH + '/' + augment_name
             augment_img.save(augment_path)  
             dict_augment['ID'].append(augment_name)
             dict_augment['img_path'].append(augment_path)
@@ -120,4 +120,4 @@ def aug_img_save(train_df, show_num, save_aug=False):
 
     else:
         augment_df = pd.DataFrame(dict_augment)
-        augment_df.to_csv(data_path+'/augment.csv', index=False)
+        augment_df.to_csv(DATA_PATH+'/augment.csv', index=False)

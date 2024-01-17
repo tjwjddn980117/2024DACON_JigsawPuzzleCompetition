@@ -10,8 +10,8 @@ from conf import *
 
 def check_img_save_origin(train_df, show_num, save_origin=False):
 
-    if not os.path.exists(save_origin_path):
-        os.makedirs(save_origin_path)
+    if not os.path.exists(SAVE_ORIGIN_PATH):
+        os.makedirs(SAVE_ORIGIN_PATH)
 
     # 재정렬한 이미지 데이터 프레임 생성
     dict_origin = {'ID':[],
@@ -47,8 +47,8 @@ def check_img_save_origin(train_df, show_num, save_origin=False):
         # train_img is the path
         # ex) ..data/train/TRAIN_00000.jpg
         train_path = sample_df['img_path'].split('/')[-1]
-        train_img = Image.open(data_path+'/train/'+train_path)
-        raw_img = Image.open(data_path+'/train/'+train_path) 
+        train_img = Image.open(DATA_PATH+'/train/'+train_path)
+        raw_img = Image.open(DATA_PATH+'/train/'+train_path) 
 
         # train 이미지에 숫자 표기
         #draw = ImageDraw.Draw(train_img)    
@@ -107,7 +107,7 @@ def check_img_save_origin(train_df, show_num, save_origin=False):
 
         else:
             origin_name = f'ORIGIN_{count:05}.jpg'
-            origin_path = save_origin_path + '/' + origin_name
+            origin_path = SAVE_ORIGIN_PATH + '/' + origin_name
             origin_img.save(origin_path) 
             dict_origin['ID'].append(origin_name)
             dict_origin['img_path'].append(origin_path)  
@@ -137,4 +137,4 @@ def check_img_save_origin(train_df, show_num, save_origin=False):
 
     else:
         origin_df = pd.DataFrame(dict_origin)
-        origin_df.to_csv(data_path+'/origin.csv', index=False)
+        origin_df.to_csv(DATA_PATH+'/origin.csv', index=False)
