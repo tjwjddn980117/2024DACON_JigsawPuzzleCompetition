@@ -17,3 +17,14 @@ TRAIN_DF = pd.read_csv(DATA_PATH+'\\test.csv')
 
 # parameter about model.
 BATCH_SIZE = 32
+
+# optimizer parameter setting
+INIT_LR = 1e-5
+FACTOR = 0.9
+ADAM_EPS = 5e-9
+PATIENCE = 10
+WARMUP = 100
+EPOCH = 1000
+CLIP = 1.0
+WEIGHT_DECAY = 5e-4
+INF = float('inf')
