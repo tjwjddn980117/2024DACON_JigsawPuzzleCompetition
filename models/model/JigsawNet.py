@@ -60,4 +60,3 @@ class JIGSAW_NET(nn.Module):
         out = F.softmax(out, dim=1)
 
         return out
-    

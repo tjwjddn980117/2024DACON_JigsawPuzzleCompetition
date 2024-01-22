@@ -19,4 +19,24 @@ def train(model, datasets, optimizer, criterion):
     model.train()
     epoch_loss = 0
     for i, batch in enumerate(datasets):
+
+        optimizer.zero_grad()
         output = model(batch)
+        output_reshape = output.contiguous().view(-1, output.shape[-1])
+
+        loss = criterion(output, output_reshape)
+        loss.backward()
+
+        optimizer.step()
+
+        epoch_loss += loss.item()
+        print('step :', round((i / len(datasets)) * 100, 2), '% , loss :', loss.item())
+    
+    return epoch_loss / len(datasets)
+
+def evaluation(model, datasets, criterion):
+    model.eval()
+    epoch_loss = 0
+    with torch.no_grad():
+        for i, batch in enumerate(datasets):
+            output = model(batch)
