@@ -38,5 +38,5 @@ TRAIN_DATASET = ImageDataset(img_dir=os.path.join(DATA_PATH, 'train'), transform
 TEST_DATASET = ImageDataset(img_dir=os.path.join(DATA_PATH, 'test'), transform=transform)
 
 # Initialize data loader
-TRAIN_DATA_LOADER = DataLoader(TRAIN_DATASET, batch_size=32, shuffle=True)
-TEST_DATA_LOADER = DataLoader(TEST_DATASET, batch_size=32, shuffle=True)
+TRAIN_DATA_LOADER = DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE, shuffle=True)
+TEST_DATA_LOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE, shuffle=True)
