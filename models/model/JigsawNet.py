@@ -53,7 +53,7 @@ class JIGSAW_NET(nn.Module):
         convUp4 = self.convUp4(convUp3, conv1)
 
         lastPool = self.pool(convUp4)
-        # [B, 4, 4, 16]
+        # [B, 16, 4, 4]
         out = self.final_conv(lastPool)
         out = nn.BatchNorm2d(16)(out)
         out = out.view(out.size(0), out.size(1), -1)
