@@ -45,7 +45,7 @@ class JIGSAW_NET(nn.Module):
         conv4 = self.conv4(residual3)
         residual4 = self.pool(conv4)
         conv5 = self.conv5(residual4)
-
+        
         # Expansion path
         convUp1 = self.convUp1(conv5, conv4)
         convUp2 = self.convUp2(convUp1, conv3)
