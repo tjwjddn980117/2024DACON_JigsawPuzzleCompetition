@@ -12,8 +12,8 @@ mydir = os.getcwd()
 DATA_PATH = 'C:\\Users\\qowor\\Desktop\\open'
 SAVE_ORIGIN_PATH = os.path.join(DATA_PATH, 'origin')
 SAVE_AGUMENT_PATH = os.path.join(DATA_PATH, 'augment')
-TRAIN_DF = pd.read_csv(os.path.join(DATA_PATH, 'train'))
-TRAIN_DF = pd.read_csv(os.path.join(DATA_PATH, 'test'))
+TRAIN_CSV = os.path.join(DATA_PATH, 'train.csv')
+TEST_CSV = os.path.join(DATA_PATH, 'test.csv')
 
 # parameter about model.
 BATCH_SIZE = 32
