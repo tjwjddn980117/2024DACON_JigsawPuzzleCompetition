@@ -1,4 +1,3 @@
-import math
 import time
 
 from torch import nn, optim
@@ -10,7 +9,6 @@ from models.utils.epoch_time import epoch_time
 from models.datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
 
 model = JIGSAW_NET(3)
-TRUE_LABEL = np.eye(16)[np.newaxis, :, :].repeat(BATCH_SIZE, axis=0)
 
 optimizer = Adam(params=model.parameters(), lr = INIT_LR, weight_decay=WEIGHT_DECAY, eps=ADAM_EPS)
 
@@ -22,13 +20,13 @@ criterion = nn.CrossEntropyLoss()
 def train(model, datasets, optimizer, criterion):
     model.train()
     epoch_loss = 0
-    for i, batch in enumerate(datasets):
+    for i, (batch, label) in enumerate(datasets):
 
         optimizer.zero_grad()
         output = model(batch)
         output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-        loss = criterion(output_reshape, TRUE_LABEL)
+        loss = criterion(output_reshape, label)
         loss.backward()
         optimizer.step()
 
@@ -41,11 +39,11 @@ def evaluation(model, datasets, criterion):
     model.eval()
     epoch_loss = 0
     with torch.no_grad():
-        for i, batch in enumerate(datasets):
+        for i, (batch, label) in enumerate(datasets):
             output = model(batch)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-            loss = criterion(output_reshape, TRUE_LABEL)
+            loss = criterion(output_reshape, label)
 
             epoch_loss += loss.item()
         
@@ -68,19 +66,16 @@ def run(total_epoch, best_loss):
 
         if valid_loss < best_loss:
             best_loss = valid_loss
-            torch.save(model.state_dict(), 'saved/model-{0}.pt'.format(valid_loss))
-
-        f = open('result/train_loss.txt', 'w')
-        f.write(str(train_losses))
-        f.close()
-
-        f = open('result/test_loss.txt', 'w')
-        f.write(str(test_losses))
-        f.close()
+            torch.save(model.state_dict(), 'saved/model-{:.4f}.pt'.format(valid_loss))
 
         print(f'Epoch: {step + 1} | Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f}')
         print(f'\tVal Loss: {valid_loss:.3f}')
 
+    with open('result/train_loss.txt', 'w') as f:
+        f.write(str(train_losses))
+        
+    with open('result/test_loss.txt', 'w') as f:
+        f.write(str(test_losses))
 if __name__ == '__main__':
     run(total_epoch=EPOCH, best_loss=INF)
