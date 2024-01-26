@@ -9,6 +9,7 @@ from models.utils.epoch_time import epoch_time
 from models.datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
 
 model = JIGSAW_NET(3)
+model = model.to(device)
 
 optimizer = Adam(params=model.parameters(), lr = INIT_LR, weight_decay=WEIGHT_DECAY, eps=ADAM_EPS)
 
@@ -21,7 +22,8 @@ def train(model, datasets, optimizer, criterion):
     model.train()
     epoch_loss = 0
     for i, (batch, label) in enumerate(datasets):
-
+        batch = batch.to(device)
+        label = label.to(device)
         optimizer.zero_grad()
         output = model(batch)
         output_reshape = output.contiguous().view(-1, output.shape[-1])
@@ -40,6 +42,8 @@ def evaluation(model, datasets, criterion):
     epoch_loss = 0
     with torch.no_grad():
         for i, (batch, label) in enumerate(datasets):
+            batch = batch.to(device)
+            label = label.to(device)
             output = model(batch)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
 
