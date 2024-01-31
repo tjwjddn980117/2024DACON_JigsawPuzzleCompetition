@@ -3,10 +3,10 @@ import time
 from torch import nn, optim
 from torch.optim import Adam
 
-from models.model.JigsawNet import JIGSAW_NET
-from models.utils.conf import *
-from models.utils.epoch_time import epoch_time
-from models.datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
+from model.JigsawNet import JIGSAW_NET
+from utils.conf import *
+from utils.epoch_time import epoch_time
+from datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
 
 model = JIGSAW_NET(3)
 model = model.to(device)
