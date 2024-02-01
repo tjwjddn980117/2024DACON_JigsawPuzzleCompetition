@@ -12,6 +12,9 @@ class JIGSAW_NET(nn.Module):
         
         Inputs:
             x (nparray): [batch_size, channel, H, W].
+        
+        outputs:
+            out (nparray): [batch_size, 16, 16]
         '''
         super(JIGSAW_NET, self).__init__()
         self.in_channels = in_channels
