@@ -1,4 +1,5 @@
 import time
+import wandb
 
 from torch import nn, optim
 from torch.optim import Adam
@@ -7,6 +8,9 @@ from model.JigsawNet import JIGSAW_NET
 from utils.conf import *
 from utils.epoch_time import epoch_time
 from datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
+
+# init the Wandb
+wandb.init(project="Jigsaw_Practice")
 
 model = JIGSAW_NET(3)
 model = model.to(device)
@@ -17,6 +21,10 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, verbose=Tr
                                                  factor=FACTOR, patience=PATIENCE)
 
 criterion = nn.CrossEntropyLoss()
+
+# wandb에 모델, 최적화 함수 로그
+wandb.watch(model, log="all")
+wandb.config.update({"Optimizer": "ADAM", "Scheduler": "ReduceLR", "Learning Rate": 0.01, "Momentum": 0.5})
 
 def train(model, datasets, optimizer, criterion):
     model.train()
@@ -40,6 +48,8 @@ def train(model, datasets, optimizer, criterion):
 def evaluation(model, datasets, criterion):
     model.eval()
     epoch_loss = 0
+    correct = 0
+    total_samples = 0
     with torch.no_grad():
         for i, (batch, label) in enumerate(datasets):
             batch = batch.to(device)
@@ -47,11 +57,17 @@ def evaluation(model, datasets, criterion):
             output = model(batch)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-            loss = criterion(output_reshape, label)
+            pred = output.argmax(dim=1, keepdim=True) # 가장 높은 확률을 가지는 클래스의 인덱스를 찾음
+            correct += pred.eq(label.view_as(pred)).sum().item() # 예측값과 타겟 값이 일치하는 경우를 카운트
 
+            loss = criterion(output_reshape, label)
             epoch_loss += loss.item()
-        
-    return epoch_loss / len(datasets)
+
+            total_samples += batch.size(0)
+
+    test_loss = epoch_loss / len(datasets)
+    wandb.log({"Test Accuracy": 100. * correct / total_samples, "Test Loss": test_loss})
+    return test_loss
 
 def run(total_epoch, best_loss):
     train_losses, test_losses = [], []
