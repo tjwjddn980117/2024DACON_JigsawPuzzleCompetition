@@ -3,11 +3,12 @@ import wandb
 
 from torch import nn, optim
 from torch.optim import Adam
+from sklearn.model_selection import train_test_split
 
 from model.JigsawNet import JIGSAW_NET
 from utils.conf import *
 from utils.epoch_time import epoch_time
-from datasets.dataset import TRAIN_DATA_LOADER, TEST_DATA_LOADER
+from datasets.dataset import TRAIN_DATA_LOADER, VALID_DATA_LOADER
 
 # init the Wandb
 wandb.init(project="Jigsaw_Practice")
@@ -74,7 +75,7 @@ def run(total_epoch, best_loss):
     for step in range(total_epoch):
         start_time = time.time()
         train_loss = train(model, TRAIN_DATA_LOADER, optimizer, criterion)
-        valid_loss = evaluation(model, TEST_DATA_LOADER, criterion)
+        valid_loss = evaluation(model, VALID_DATA_LOADER, criterion)
         end_time = time.time()
 
         if step > WARMUP:
