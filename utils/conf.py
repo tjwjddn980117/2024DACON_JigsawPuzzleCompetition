@@ -9,7 +9,7 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 # parameter about dataset
 mydir = os.getcwd()
 #DATA_PATH = mydir + '\\content'
-DATA_PATH = 'C:\\Users\\Seo\\Desktop\\open'
+DATA_PATH = 'C:\\Users\\Seo\\Downloads\\open'
 SAVE_ORIGIN_PATH = os.path.join(DATA_PATH, 'origin')
 SAVE_AGUMENT_PATH = os.path.join(DATA_PATH, 'augment')
 TRAIN_CSV = os.path.join(DATA_PATH, 'train.csv')

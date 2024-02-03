@@ -1,14 +1,14 @@
 import time
 import wandb
+from tqdm import tqdm
 
 from torch import nn, optim
 from torch.optim import Adam
-from sklearn.model_selection import train_test_split
 
 from model.JigsawNet import JIGSAW_NET
 from utils.conf import *
 from utils.epoch_time import epoch_time
-from datasets.dataset import TRAIN_DATA_LOADER, VALID_DATA_LOADER
+from datasets.dataset import TRAIN_DATA_LOADER, VALID_DATA_LOADER, TEST_DATA_LOADER
 
 # init the Wandb
 wandb.init(project="Jigsaw_Practice")
@@ -30,9 +30,9 @@ wandb.config.update({"Optimizer": "ADAM", "Scheduler": "ReduceLR", "Learning Rat
 def train(model, datasets, optimizer, criterion):
     model.train()
     epoch_loss = 0
-    for i, (batch, label) in enumerate(datasets):
+    for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
         batch = batch.to(device)
-        label = label.to(device)
+        label = torch.tensor(label).to(device)
         optimizer.zero_grad()
         output = model(batch)
         output_reshape = output.contiguous().view(-1, output.shape[-1])
@@ -52,13 +52,13 @@ def evaluation(model, datasets, criterion):
     correct = 0
     total_samples = 0
     with torch.no_grad():
-        for i, (batch, label) in enumerate(datasets):
+        for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
             batch = batch.to(device)
-            label = label.to(device)
+            label = torch.tensor(label).to(device)
             output = model(batch)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-            pred = output.argmax(dim=1, keepdim=True) # 가장 높은 확률을 가지는 클래스의 인덱스를 찾음
+            pred = output.argmax(dim=2) # 가장 높은 확률을 가지는 클래스의 인덱스를 찾음
             correct += pred.eq(label.view_as(pred)).sum().item() # 예측값과 타겟 값이 일치하는 경우를 카운트
 
             loss = criterion(output_reshape, label)
@@ -70,8 +70,25 @@ def evaluation(model, datasets, criterion):
     wandb.log({"Test Accuracy": 100. * correct / total_samples, "Test Loss": test_loss})
     return test_loss
 
+def test(model, datasets):
+    model.eval()
+    id_list = []
+    pred_list = []
+    with torch.no_grad():
+        for i, (batch, img_id) in tqdm(enumerate(datasets), total=len(datasets)):
+            batch = batch.to(device)
+            output = model(batch)
+            pred = output.argmax(dim=2)+1
+
+            id_list.extend(img_id)
+            pred_list.extend(pred.cpu().numpy().tolist())
+
+    columns = [str(i+1) for i in range(16)]
+    df = pd.DataFrame(pred_list, index=id_list, columns=columns)  # 데이터 프레임 생성
+    df.to_csv('result.csv')
+
 def run(total_epoch, best_loss):
-    train_losses, test_losses = [], []
+    train_losses, val_losses = [], []
     for step in range(total_epoch):
         start_time = time.time()
         train_loss = train(model, TRAIN_DATA_LOADER, optimizer, criterion)
@@ -82,7 +99,7 @@ def run(total_epoch, best_loss):
             scheduler.step(valid_loss)
 
         train_losses.append(train_loss)
-        test_losses.append(valid_loss)
+        val_losses.append(valid_loss)
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
         if valid_loss < best_loss:
@@ -96,7 +113,11 @@ def run(total_epoch, best_loss):
     with open('result/train_loss.txt', 'w') as f:
         f.write(str(train_losses))
         
-    with open('result/test_loss.txt', 'w') as f:
-        f.write(str(test_losses))
+    with open('result/val_loss.txt', 'w') as f:
+        f.write(str(val_losses))
+    
+    print('testing...')
+    test(model, TEST_DATA_LOADER)
+
 if __name__ == '__main__':
     run(total_epoch=EPOCH, best_loss=INF)
