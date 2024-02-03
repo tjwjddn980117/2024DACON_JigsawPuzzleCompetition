@@ -3,7 +3,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 from PIL import Image
-from ..utils.conf import *
+from utils.conf import *
 
 class JigsawDataset(Dataset):
     def __init__(self, csv_file, transform=None, test=False):
@@ -19,6 +19,7 @@ class JigsawDataset(Dataset):
         return len(self.data_frame)
 
     def __getitem__(self, idx):
+        img_id = self.data_frame.iloc[idx,0]
         img_name = os.path.join(DATA_PATH, self.data_frame.iloc[idx, 1])
         image = Image.open(img_name)
         labels = torch.tensor(self.data_frame.iloc[idx, 2:].astype(int).tolist(), dtype=torch.float32)
@@ -27,7 +28,7 @@ class JigsawDataset(Dataset):
             image = self.transform(image)
 
         if self.test:
-            return image
+            return (image, img_id)
         else:
             labels = self.data_frame.iloc[idx, 2:].astype(int).tolist()
             return (image, labels)
