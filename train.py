@@ -27,10 +27,11 @@ criterion = nn.CrossEntropyLoss()
 wandb.watch(model, log="all")
 wandb.config.update({"Optimizer": "ADAM", "Scheduler": "ReduceLR", "Learning Rate": 0.01, "Momentum": 0.5})
 
-def train(model, datasets, optimizer, criterion):
+def train(model, datasets, optimizer, criterion, now_epoch):
     model.train()
     epoch_loss = 0
-    for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
+    progress_bar = tqdm(enumerate(datasets), total=len(datasets), desc=f"Epoch {now_epoch+1}/{EPOCH}")
+    for i, (batch, label) in progress_bar:
         batch = batch.to(device)
         # check_type_and_shape(batch)
         label = torch.stack(label).transpose(0, 1).contiguous().to(device)-1
@@ -39,23 +40,24 @@ def train(model, datasets, optimizer, criterion):
         # print(output.shape)
         # output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-        print(f'{output.shape}  {label.shape}')
         loss = criterion(output, label)
         loss.backward()
         optimizer.step()
 
         epoch_loss += loss.item()
-        print('step :', round((i / len(datasets)) * 100, 2), '% , loss :', loss.item())
-    
+
+        progress_bar.set_description(f"Epoch {now_epoch+1}/{EPOCH}, Loss: {loss.item():.4f}")
+
     return epoch_loss / len(datasets)
 
-def evaluation(model, datasets, criterion):
+def evaluation(model, datasets, criterion, now_epoch):
     model.eval()
     epoch_loss = 0
     correct = 0
     total_samples = 0
+    progress_bar = tqdm(enumerate(datasets), total=len(datasets), desc=f"Epoch {now_epoch+1}/{EPOCH}")
     with torch.no_grad():
-        for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
+        for i, (batch, label) in progress_bar:
             batch = batch.to(device)
             label = torch.tensor(label, dtype=torch.float32).to(device)-1
             output = model(batch)
@@ -67,18 +69,21 @@ def evaluation(model, datasets, criterion):
             loss = criterion(output, label)
             epoch_loss += loss.item()
 
+            progress_bar.set_description(f"Epoch {now_epoch+1}/{EPOCH}, Loss: {loss.item():.4f}")
+
             total_samples += batch.size(0)
 
     test_loss = epoch_loss / len(datasets)
     wandb.log({"Test Accuracy": 100. * correct / total_samples, "Test Loss": test_loss})
     return test_loss
 
-def test(model, datasets):
+def test(model, datasets, now_epoch):
     model.eval()
     id_list = []
     pred_list = []
+    progress_bar = tqdm(enumerate(datasets), total=len(datasets))
     with torch.no_grad():
-        for i, (batch, img_id) in tqdm(enumerate(datasets), total=len(datasets)):
+        for i, (batch, img_id) in progress_bar:
             batch = batch.to(device)
             output = model(batch)
             pred = output.argmax(dim=2)+1
@@ -94,8 +99,8 @@ def run(total_epoch, best_loss):
     train_losses, val_losses = [], []
     for step in range(total_epoch):
         start_time = time.time()
-        train_loss = train(model, TRAIN_DATA_LOADER, optimizer, criterion)
-        valid_loss = evaluation(model, VALID_DATA_LOADER, criterion)
+        train_loss = train(model, TRAIN_DATA_LOADER, optimizer, criterion, step)
+        valid_loss = evaluation(model, VALID_DATA_LOADER, criterion, step)
         end_time = time.time()
 
         if step > WARMUP:
@@ -120,7 +125,7 @@ def run(total_epoch, best_loss):
         f.write(str(val_losses))
     
     print('testing...')
-    test(model, TEST_DATA_LOADER)
+    test(model, TEST_DATA_LOADER, step)
 
 if __name__ == '__main__':
     run(total_epoch=EPOCH, best_loss=INF)
