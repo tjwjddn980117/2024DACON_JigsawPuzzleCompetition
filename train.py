@@ -32,12 +32,15 @@ def train(model, datasets, optimizer, criterion):
     epoch_loss = 0
     for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
         batch = batch.to(device)
-        label = torch.tensor(label).to(device)
+        # check_type_and_shape(batch)
+        label = torch.stack(label).transpose(0, 1).contiguous().to(device)-1
         optimizer.zero_grad()
         output = model(batch)
-        output_reshape = output.contiguous().view(-1, output.shape[-1])
+        # print(output.shape)
+        # output_reshape = output.contiguous().view(-1, output.shape[-1])
 
-        loss = criterion(output_reshape, label)
+        print(f'{output.shape}  {label.shape}')
+        loss = criterion(output, label)
         loss.backward()
         optimizer.step()
 
@@ -54,14 +57,14 @@ def evaluation(model, datasets, criterion):
     with torch.no_grad():
         for i, (batch, label) in tqdm(enumerate(datasets), total=len(datasets)):
             batch = batch.to(device)
-            label = torch.tensor(label).to(device)
+            label = torch.tensor(label, dtype=torch.float32).to(device)-1
             output = model(batch)
-            output_reshape = output.contiguous().view(-1, output.shape[-1])
+            # output_reshape = output.contiguous().view(-1, output.shape[-1])
 
             pred = output.argmax(dim=2) # 가장 높은 확률을 가지는 클래스의 인덱스를 찾음
             correct += pred.eq(label.view_as(pred)).sum().item() # 예측값과 타겟 값이 일치하는 경우를 카운트
 
-            loss = criterion(output_reshape, label)
+            loss = criterion(output, label)
             epoch_loss += loss.item()
 
             total_samples += batch.size(0)
