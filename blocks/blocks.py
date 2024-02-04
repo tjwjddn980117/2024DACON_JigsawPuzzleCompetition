@@ -51,7 +51,7 @@ class DeconvBlock(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
         self.conv = nn.Conv2d(in_channels, out_channels, 3, padding=1)
         self.batchnorm = nn.BatchNorm2d(out_channels)
-        self.convBlock = ConvBlock(out_channels, out_channels, init='he_normal')
+        self.convBlock = ConvBlock(in_channels, out_channels, init='he_normal')
 
         if init == 'he_normal':
             nn.init.kaiming_normal_(self.conv.weight)

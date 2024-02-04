@@ -34,7 +34,10 @@ class JIGSAW_NET(nn.Module):
         self.convUp3 = DeconvBlock(64, 32, 'he_normal')
         self.convUp4 = DeconvBlock(32, 16, 'he_normal')
 
-        self.final_conv = nn.Conv2d(in_channels, 16, kernel_size=(28, 28), stride=(28, 28))
+        self.final_conv = nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1)
+        self.final_pool = nn.AdaptiveAvgPool2d((4, 4))
+
+        self.batch_norm = nn.BatchNorm2d(16)
         
     def forward(self, x):
 
@@ -56,9 +59,11 @@ class JIGSAW_NET(nn.Module):
         convUp4 = self.convUp4(convUp3, conv1)
 
         lastPool = self.pool(convUp4)
+
         # [B, 16, 4, 4]
         out = self.final_conv(lastPool)
-        out = nn.BatchNorm2d(16)(out)
+        out = self.final_pool(lastPool)
+        out = self.batch_norm(out)
         out = out.view(out.size(0), out.size(1), -1)
         out = F.softmax(out, dim=1)
 
