@@ -19,12 +19,12 @@ TEST_CSV = os.path.join(DATA_PATH, 'test.csv')
 BATCH_SIZE = 32
 
 # optimizer parameter setting
-INIT_LR = 1e-5
+INIT_LR = 1e-4
 FACTOR = 0.9
 ADAM_EPS = 5e-9
 PATIENCE = 10
 WARMUP = 100
-EPOCH = 50
+EPOCH = 200
 CLIP = 1.0
 WEIGHT_DECAY = 5e-4
 INF = float('inf')

@@ -10,6 +10,14 @@ from utils.conf import *
 from utils.epoch_time import epoch_time
 from datasets.dataset import TRAIN_DATA_LOADER, VALID_DATA_LOADER, TEST_DATA_LOADER
 
+save_dir = 'saved'
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
+
+result_dir = 'result'
+if not os.path.exists(result_dir):
+    os.makedirs(result_dir)
+
 # init the Wandb
 wandb.init(project="Jigsaw_Practice")
 
@@ -59,7 +67,7 @@ def evaluation(model, datasets, criterion, now_epoch):
     with torch.no_grad():
         for i, (batch, label) in progress_bar:
             batch = batch.to(device)
-            label = torch.tensor(label, dtype=torch.float32).to(device)-1
+            label = torch.stack(label).transpose(0, 1).contiguous().to(device)-1
             output = model(batch)
             # output_reshape = output.contiguous().view(-1, output.shape[-1])
 
