@@ -9,3 +9,4 @@ tqdm
 pandas
 scikit-learn
 wandb
+pyarrow
