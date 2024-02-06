@@ -14,6 +14,7 @@ SAVE_ORIGIN_PATH = os.path.join(DATA_PATH, 'origin')
 SAVE_AGUMENT_PATH = os.path.join(DATA_PATH, 'augment')
 TRAIN_CSV = os.path.join(DATA_PATH, 'train.csv')
 TEST_CSV = os.path.join(DATA_PATH, 'test.csv')
+LOAD_MODEL ='saved/model-2.5918.pt'
 
 # parameter about model.
 BATCH_SIZE = 32
