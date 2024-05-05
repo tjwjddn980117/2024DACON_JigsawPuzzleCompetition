@@ -99,7 +99,7 @@ def check_img_save_origin(train_df, show_num, save_origin=False):
                 upper = row * tile_height
                 right = left + tile_width
                 lower = upper + tile_height
-                origin_img.paste(tile, (left, upper, right, lower)) 
+                origin_img.paste(tile, (left, upper, right, lower))
 
         # 재정려된 이미지 저장
         if save_origin == False:
